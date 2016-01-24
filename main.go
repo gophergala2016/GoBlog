@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -168,6 +167,8 @@ func SignupHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 func AdminPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	success := r.FormValue("success")
+
 	username := getUser(w, r)
 	if username != "" {
 		db, err := bolt.Open("goblog.db", 0600, nil)
@@ -183,6 +184,8 @@ func AdminPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			"PageName": "admin",
 			"User":     username,
 			"Blogs":    getBlogsForUser(db, username),
+			"Success":  success,
+			"User":     getUser(w, r),
 		})
 	} else {
 		http.Redirect(w, r, "/error/You must be authenticated!", http.StatusFound)
@@ -191,17 +194,19 @@ func AdminPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	blogname := r.FormValue("blogname")
-	websiteOriginal := r.FormValue("website")
+	//websiteOriginal := r.FormValue("website")
 	port := rand.Intn(63000) + 2000
 
-	website, err := checkUrl(websiteOriginal)
-	if err != nil {
-		http.Redirect(w, r, fmt.Sprintf("/error/%s is not a valid url", websiteOriginal), http.StatusFound)
-		return
-	}
+	//website, err := checkUrl(websiteOriginal)
+	//if err != nil {
+	//	http.Redirect(w, r, fmt.Sprintf("/error/%s is not a valid url", websiteOriginal), http.StatusFound)
+	//	return
+	//}
 
 	re := regexp.MustCompile("[^A-Za-z]")
 	blogname = re.ReplaceAllString(blogname, "")
+
+	website := blogname + ".goblog.pw"
 
 	blogcheck := []byte("")
 
@@ -217,7 +222,6 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 			blogcheck = b.Get([]byte(blogname))
 			return nil
 		})
-
 		if blogcheck == nil {
 			create, err := exec.Command("./create.sh", blogname, website, strconv.Itoa(port)).Output()
 			if err != nil && !DEBUG {
@@ -227,11 +231,11 @@ func AdminHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 				fmt.Println(create)
 				db.Update(func(tx *bolt.Tx) error {
 					b := tx.Bucket([]byte("BlogMappingBucket"))
-					err := b.Put([]byte(blogname), []byte(website))
+					err := b.Put([]byte(blogname), []byte(website)) // <- TODO change this
 					return err
 				})
 				addBlogToUser(db, username, blogname, website)
-				http.Redirect(w, r, "/admin/", http.StatusFound)
+				http.Redirect(w, r, "/admin/?success="+blogname, http.StatusFound)
 				return
 			}
 		} else {
@@ -393,15 +397,18 @@ func getUserFromCookie(value string) string {
 	return ""
 }
 
-func checkUrl(s string) (string, error) {
-	u, err := url.Parse(s)
+//func checkUrl(s string) (string, error) {
+//	var newWebsite string
+//	u, err := url.Parse(s)
 
-	if err != nil || u.Host == "" {
-		u, err = url.Parse("http://" + s)
-	}
+//	if err != nil || u.Host == "" {
+//		u, err = url.Parse("http://" + s)
+//	}
 
-	return u.Host, err
-}
+//	newWebsite = strings.Replace(u.Host, "www.", "", 1)
+
+//	return newWebsite, err
+//}
 
 func main() {
 	fmt.Println("Started server on port 1337")

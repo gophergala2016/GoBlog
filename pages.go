@@ -113,13 +113,25 @@ var login = `
 
 var admin = `
 {{define "content"}}
-	
+
 {{ if .Blogs }}
 	<div class="col-md-6 col-md-offset-3">
+		{{if .Success}}
+			<div class="alert alert-success">
+				<h1>Success: Your blog, {{.Success}}, has been created!</h1>
+			</div>
+		{{end}}
+	
 		<div class="list-group">
 			<div class="list-group-item active">Your Blogs</div>
 			{{ range .Blogs }}
-				<a href="http://{{.Website}}" class="list-group-item"> {{.Blogname}} </a>
+				<li class="list-group-item"> 
+					{{.Blogname}} 
+					<div class="btn-group pull-right"> 
+						<a class="btn btn-success" href="http://{{.Website}}" target="_blank">View Blog</a> 
+						<a class="btn btn-info" href="http://{{.Website}}/admin" target="_blank">Blog Admin</a> 
+					</div>
+				</li>
 			{{ end }}
 		</div>
 	</div>
@@ -135,7 +147,7 @@ var admin = `
 
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-4 control-label" for="blog">Blog Name</label>  
+  <label class="col-md-4 control-label" for="blog">Blog Name/Subdomain (.ghost.pw)</label>  
   <div class="col-md-6">
   <input id="blogname" name="blogname" type="text" placeholder="exampleblog" class="form-control input-md" required="">
     
@@ -143,6 +155,7 @@ var admin = `
 </div>
 
 <!-- Text input-->
+<!--
 <div class="form-group">
   <label class="col-md-4 control-label" for="website">Blog Website</label>  
   <div class="col-md-6">
@@ -150,6 +163,7 @@ var admin = `
     
   </div>
 </div>
+-->
 
 <!-- Button -->
 <div class="form-group">
