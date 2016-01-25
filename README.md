@@ -1,5 +1,8 @@
 # GoBlog 
 
+** IMPORTANT ** Go to branch 'dev' to see our code and get the correct version.
+We did not have admin to fix this. Thank you!
+
 GoBlog is our entry for the 2016 GopherGala.
 
 GoBlog is a platform for easily deploying your own blog. We are powered by [Journey](https://github.com/kabukky/journey), a blog engine written in Go which is compatible with Ghost themes.
