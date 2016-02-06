@@ -1,5 +1,5 @@
 # GoBlog 
-
+Still in active development! See https://github.com/GetGoBlog/GoBlog
 ** IMPORTANT ** Go to branch 'dev' to see our code and get the correct version.
 We did not have admin to fix this. Thank you!
 https://github.com/gophergala2016/GoBlog/tree/dev
